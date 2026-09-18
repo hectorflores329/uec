@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Asistencia y Pagos</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+<style>
+  body{
+    background: #f1f5f9;
+    padding-bottom: 90px; /* espacio para la barra fija inferior */
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  }
+  .header-app{
+    background: linear-gradient(135deg,#0b1220 0%,#0f1e3d 40%,#1e3a8a 100%);
+    color:#fff;
+    padding: 16px 18px 16px;
+    border-radius: 0 0 20px 20px;
+    box-shadow: 0 6px 20px rgba(11,18,32,.4);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    margin-bottom: 14px;
+    border-bottom: 3px solid #2563eb;
+  }
+  .header-app .titulo-principal{
+    font-size: 1.2rem;
+    font-weight: 800;
+    margin: 0 0 5px 0;
+    letter-spacing: .5px;
+    text-shadow: 0 2px 6px rgba(0,0,0,.35);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .header-app .subtitulo{
+    font-size: .72rem;
+    font-weight: 400;
+    margin: 0;
+    letter-spacing: .7px;
+    opacity: .85;
+    line-height: 1.3;
+  }
+  .header-app .subtitulo + .subtitulo{
+    margin-top: 1px;
+  }
+  .header-app .nota{
+    font-size: .64rem;
+    font-weight: 400;
+    margin: 6px 0 0 0;
+    letter-spacing: .3px;
+    opacity: .55;
+  }
+
+  .card-alumno{
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 2px 10px rgba(15,23,42,.06);
+    background: #fff;
+    margin-bottom: 10px;
+    transition: all .2s ease;
+    overflow: hidden;
+    position: relative;
+  }
+  .card-alumno::before{
+    content:"";
+    position:absolute;
+    left:0; top:0; bottom:0;
+    width: 5px;
+    background: #cbd5e1;
+    transition: background .2s;
+  }
+  .card-alumno.verde::before{background:#10b981;}
+  .card-alumno.rojo::before{background:#ef4444;}
+  .card-alumno.amarillo::before{background:#f59e0b;}
+
+  .card-alumno .card-body{
+    padding: 12px 14px 12px 18px;
+  }
+  .nombre-alumno{
+    font-weight: 700;
+    font-size: .88rem;
+    color: #1e293b;
+    letter-spacing: .3px;
+    margin: 0;
+    line-height: 1.2;
+  }
+  .nombre-completo{
+    font-size: .68rem;
+    color: #94a3b8;
+    margin: 0;
+  }
+
+  .btn-estado{
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    border: 2px solid #e2e8f0;
+    background: #f8fafc;
+    color: #94a3b8;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.05rem;
+    padding: 0;
+    transition: all .15s ease;
+  }
+  .btn-estado:hover{ transform: translateY(-1px); }
+  .btn-estado.activo.verde{background:#10b981;border-color:#10b981;color:#fff;box-shadow:0 4px 12px rgba(16,185,129,.4);}
+  .btn-estado.activo.rojo{background:#ef4444;border-color:#ef4444;color:#fff;box-shadow:0 4px 12px rgba(239,68,68,.4);}
+  .btn-estado.activo.amarillo{background:#f59e0b;border-color:#f59e0b;color:#fff;box-shadow:0 4px 12px rgba(245,158,11,.4);}
+
+  .campo-num{
+    background: #f1f5f9;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 4px 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 38px;
+    transition: border-color .15s;
+  }
+  .campo-num:focus-within{
+    border-color: #1e3a8a;
+    background: #eff6ff;
+  }
+  .campo-num label{
+    font-size: .6rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    margin: 0;
+    letter-spacing: .5px;
+  }
+  .campo-num input{
+    width: 44px;
+    border: none;
+    background: transparent;
+    font-size: .85rem;
+    font-weight: 700;
+    color: #1e293b;
+    text-align: right;
+    outline: none;
+    padding: 0;
+    -moz-appearance: textfield;
+  }
+  .campo-num input::-webkit-outer-spin-button,
+  .campo-num input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+
+  .btn-pago{
+    height: 38px;
+    border-radius: 10px;
+    border: 2px solid #e2e8f0;
+    background: #f8fafc;
+    color: #94a3b8;
+    font-size: .72rem;
+    font-weight: 700;
+    padding: 0 12px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    transition: all .15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .btn-pago.pagado{
+    background: #1e3a8a;
+    border-color: #1e3a8a;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(30,58,138,.45);
+  }
+
+  .btn-reset{
+    border-radius: 12px;
+    font-size: .78rem;
+    font-weight: 600;
+    padding: 10px 20px;
+    border: 2px solid #e2e8f0;
+    background: #fff;
+    color: #64748b;
+  }
+  .btn-reset:active{ transform: scale(.97); }
+
+  /* ========== BARRA FIJA INFERIOR ========== */
+  .barra-fija{
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    border-top: 1px solid #e2e8f0;
+    box-shadow: 0 -4px 18px rgba(15,23,42,.1);
+    padding: 8px 10px 10px;
+    z-index: 200;
+    border-radius: 18px 18px 0 0;
+  }
+  .barra-fija .stats-row{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+  .stat-item{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 4px;
+    border-radius: 10px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    transition: all .2s;
+  }
+  .stat-item .valor{
+    font-size: .88rem;
+    font-weight: 800;
+    line-height: 1.1;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .stat-item .valor i{ font-size: .8rem; }
+  .stat-item .etiqueta{
+    font-size: .58rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+    color: #94a3b8;
+    margin-top: 1px;
+  }
+  .stat-item.verde{ color: #10b981; }
+  .stat-item.rojo{ color: #ef4444; }
+  .stat-item.amarillo{ color: #f59e0b; }
+  .stat-item.dinero{
+    background: linear-gradient(135deg,#1e3a8a 0%,#2563eb 100%);
+    border-color: #1e3a8a;
+    color: #fff;
+  }
+  .stat-item.dinero .etiqueta{ color: rgba(255,255,255,.8); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header-app">
+  <h1 class="titulo-principal"><i class="bi bi-clipboard2-check-fill"></i>12 BTP - I</h1>
+  <p class="subtitulo">ENCUENTRO NACIONAL DE GRADUANDOS - FENCECH</p>
+  <p class="subtitulo">LISTADO DE ASISTENCIA Y PAGOS</p>
+  <p class="nota">31 alumnos · Guardado en este dispositivo</p>
+</div>
+
+<!-- LISTA -->
+<div class="container px-3">
+  <div id="lista"></div>
+
+  <div class="text-center mt-4">
+    <button class="btn btn-reset" id="reset">
+      <i class="bi bi-trash3 me-1"></i>Borrar todos los datos
+    </button>
+  </div>
+</div>
+
+<!-- BARRA FIJA INFERIOR CON RESUMEN -->
+<div class="barra-fija">
+  <div class="stats-row">
+    <div class="stat-item verde">
+      <div class="valor"><i class="bi bi-check-circle-fill"></i><span id="cnt-verde">0</span></div>
+      <div class="etiqueta">Presentes</div>
+    </div>
+    <div class="stat-item rojo">
+      <div class="valor"><i class="bi bi-x-circle-fill"></i><span id="cnt-rojo">0</span></div>
+      <div class="etiqueta">Faltas</div>
+    </div>
+    <div class="stat-item amarillo">
+      <div class="valor"><i class="bi bi-exclamation-circle-fill"></i><span id="cnt-amarillo">0</span></div>
+      <div class="etiqueta">Excusas</div>
+    </div>
+    <div class="stat-item dinero">
+      <div class="valor"><i class="bi bi-cash-stack"></i><span id="total-dinero">L.0</span></div>
+      <div class="etiqueta">Recaudado</div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+/* ============ CONFIG ============ */
+const MONTO_POR_PAGO = 300;
+
+/* ============ LISTA ============ */
+const alumnosRaw = [
+  "Alejandra Guadalupe Vargas Lopez",
+  "Alejandra Maria Amaya Soler",
+  "Ana Sarai Marquez Perez",
+  "Angelly Noelia Hernandez Rodriguez",
+  "Ashly Estephany Sorto Calderon",
+  "Ashly Nicolle Ebanks Duarte",
+  "Brenda Letizia Suazo Cedillo",
+  "Daniela Alejandra Polanco Fuentes",
+  "Fatima Melissa Suazo Cabrera",
+  "Keycha Daniela Mencia Vijil",
+  "Mariza Alexandra Mejia Vasquez",
+  "Nahomy Jireh Reyes",
+  "Nahomy Milagros Lara Flores",
+  "Vanessa Michelle Villatoro",
+  "Viviana Elizabeth Santos Melendes",
+  "Alex Roberto Navarrete Rodriguez",
+  "Angel Daniel Zelaya Castañeda",
+  "Angel Gabriel Suazo Lopez",
+  "David Alberto Vargas Reyes",
+  "Dencell Odair Corea Villalvir",
+  "Diego Alejandro Santos Meza",
+  "Diego Armando Corea Villalvir",
+  "Dylan Elohim Mercado Varela",
+  "Grevis Ariel Bautista Martinez",
+  "Jacobo Abel Hernandez Villeda",
+  "Javier Jahith Ramos Suniga",
+  "Lester Rodrigo Pereira Turcios",
+  "Ramon Antonio Carcamo Mairena",
+  "Rosner Said Vallecillo Henriquez",
+  "Sady Fernando Meza Rivera",
+  "Selvin Eduardo Vasquez Ramirez"
+];
+
+/* ============ GENERAR NOMBRES ============ */
+function primerNombre(n){ return n.trim().split(/\s+/)[0]; }
+function primerApellidoInicial(n){
+  const p = n.trim().split(/\s+/);
+  let ap = "";
+  if (p.length >= 4) ap = p[2];
+  else if (p.length === 3) ap = p[1];
+  else ap = p[1] || "";
+  return ap.charAt(0).toUpperCase();
+}
+const conteo = {};
+alumnosRaw.forEach(n => {
+  const pn = primerNombre(n).toUpperCase();
+  conteo[pn] = (conteo[pn] || 0) + 1;
+});
+const alumnos = alumnosRaw.map((n, idx) => {
+  const pn = primerNombre(n).toUpperCase();
+  let mostrado = pn;
+  if (conteo[pn] > 1) mostrado = pn + " " + primerApellidoInicial(n) + ".";
+  return { id: idx, nombreMostrado: mostrado, nombreCompleto: n };
+});
+
+/* ============ STORAGE ============ */
+const KEY = "asistencia_pagos_v2";
+let estado = {};
+try{ estado = JSON.parse(localStorage.getItem(KEY)) || {}; }catch(e){ estado = {}; }
+function guardar(){ try{ localStorage.setItem(KEY, JSON.stringify(estado)); }catch(e){} }
+
+/* ============ RENDER ============ */
+const lista = document.getElementById("lista");
+
+function render(){
+  lista.innerHTML = "";
+  alumnos.forEach(a => {
+    const st = estado[a.id] || { asistencia:null, pago:false, deuda:"" };
+    const col = document.createElement("div");
+    col.className = "card-alumno";
+    if (st.asistencia) col.classList.add(st.asistencia);
+    col.dataset.id = a.id;
+
+    col.innerHTML = `
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <div>
+            <p class="nombre-alumno">${a.nombreMostrado}</p>
+            <p class="nombre-completo">${a.nombreCompleto}</p>
+          </div>
+        </div>
+        <div class="d-flex justify-content-between align-items-center gap-2 flex-wrap">
+          <div class="d-flex gap-1">
+            <button class="btn-estado verde" data-accion="verde" title="Asistió"><i class="bi bi-check-lg"></i></button>
+            <button class="btn-estado rojo" data-accion="rojo" title="Faltó"><i class="bi bi-x-lg"></i></button>
+            <button class="btn-estado amarillo" data-accion="amarillo" title="Excusa"><i class="bi bi-exclamation-lg"></i></button>
+          </div>
+          <div class="d-flex gap-2 align-items-center">
+            <button class="btn-pago" data-accion="pago"><i class="bi bi-cash"></i>Pago</button>
+            <div class="campo-num">
+              <label>Debe</label>
+              <input type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0" value="${st.deuda ?? ""}">
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    if (st.asistencia) col.querySelector('.btn-estado.' + st.asistencia).classList.add("activo");
+    if (st.pago) col.querySelector('.btn-pago').classList.add("pagado");
+
+    col.querySelectorAll(".btn-estado").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const val = btn.dataset.accion;
+        if (!estado[a.id]) estado[a.id] = { asistencia:null, pago:false, deuda:"" };
+        estado[a.id].asistencia = (estado[a.id].asistencia === val) ? null : val;
+        guardar();
+        actualizarCard(a.id);
+        actualizarStats();
+      });
+    });
+
+    const btnPago = col.querySelector(".btn-pago");
+    btnPago.addEventListener("click", () => {
+      if (!estado[a.id]) estado[a.id] = { asistencia:null, pago:false, deuda:"" };
+      estado[a.id].pago = !estado[a.id].pago;
+      guardar();
+      btnPago.classList.toggle("pagado", estado[a.id].pago);
+      actualizarStats();
+    });
+
+    const inp = col.querySelector("input");
+    inp.addEventListener("input", (e) => {
+      const v = e.target.value.replace(/[^0-9]/g, "");
+      e.target.value = v;
+      if (!estado[a.id]) estado[a.id] = { asistencia:null, pago:false, deuda:"" };
+      estado[a.id].deuda = v;
+      guardar();
+    });
+    inp.addEventListener("focus", (e) => {
+      if (e.target.value === "0") e.target.value = "";
+    });
+
+    lista.appendChild(col);
+  });
+  actualizarStats();
+}
+
+function actualizarCard(id){
+  const card = lista.querySelector('.card-alumno[data-id="'+id+'"]');
+  if (!card) return;
+  const st = estado[id] || { asistencia:null, pago:false, deuda:"" };
+  card.classList.remove("verde","rojo","amarillo");
+  if (st.asistencia) card.classList.add(st.asistencia);
+  card.querySelectorAll(".btn-estado").forEach(b => {
+    b.classList.toggle("activo", b.dataset.accion === st.asistencia);
+  });
+}
+
+function actualizarStats(){
+  let v=0,r=0,a=0,pagos=0;
+  Object.values(estado).forEach(s => {
+    if (s.asistencia === "verde") v++;
+    else if (s.asistencia === "rojo") r++;
+    else if (s.asistencia === "amarillo") a++;
+    if (s.pago) pagos++;
+  });
+  document.getElementById("cnt-verde").textContent = v;
+  document.getElementById("cnt-rojo").textContent = r;
+  document.getElementById("cnt-amarillo").textContent = a;
+  document.getElementById("total-dinero").textContent = "L." + (pagos * MONTO_POR_PAGO).toLocaleString("es-HN");
+}
+
+/* ============ EVITAR RECARGA ============ */
+window.addEventListener("beforeunload", (e) => {
+  e.preventDefault();
+  e.returnValue = "";
+  return "";
+});
+
+/* ============ RESET ============ */
+document.getElementById("reset").addEventListener("click", () => {
+  if (confirm("¿Seguro que quieres BORRAR todos los datos guardados?")){
+    estado = {};
+    guardar();
+    render();
+  }
+});
+
+render();
+</script>
+</body>
+</html>
